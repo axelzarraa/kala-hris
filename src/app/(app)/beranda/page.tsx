@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import { getSession } from "@/lib/session";
+import AttendanceCard from "@/components/attendance-card";
 
 async function Greeting() {
   const session = await getSession();
@@ -10,7 +11,7 @@ async function Greeting() {
         Halo, {session?.name}
       </h1>
       <p className="mt-1 text-sm text-slate-600">
-        Fitur absensi dibuat di step berikutnya.
+        Absen dulu sebelum mulai kerja.
       </p>
     </div>
   );
@@ -18,8 +19,11 @@ async function Greeting() {
 
 export default function BerandaPage() {
   return (
-    <Suspense fallback={null}>
-      <Greeting />
-    </Suspense>
+    <div className="flex flex-col gap-6">
+      <Suspense fallback={null}>
+        <Greeting />
+      </Suspense>
+      <AttendanceCard />
+    </div>
   );
 }
