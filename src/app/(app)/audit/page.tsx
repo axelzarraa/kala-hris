@@ -1,0 +1,114 @@
+import { Suspense } from "react";
+import { redirect } from "next/navigation";
+import { prisma } from "@/lib/prisma";
+import { getSession } from "@/lib/session";
+
+const timeFmt = new Intl.DateTimeFormat("id-ID", {
+  timeZone: "Asia/Jakarta",
+  day: "numeric",
+  month: "short",
+  year: "numeric",
+  hour: "2-digit",
+  minute: "2-digit",
+  hour12: false,
+});
+
+const actionLabel: Record<string, string> = {
+  "leave.create": "Mengajukan cuti",
+  "leave.approve": "Menyetujui cuti",
+  "leave.reject": "Menolak cuti",
+  "employee.create": "Menambah karyawan",
+  "employee.activate": "Mengaktifkan akun",
+  "employee.deactivate": "Menonaktifkan akun",
+};
+
+const entityLabel: Record<string, string> = {
+  LeaveRequest: "Pengajuan cuti",
+  Employee: "Karyawan",
+};
+
+function formatDetail(detail: unknown) {
+  if (
+    detail &&
+    typeof detail === "object" &&
+    "from" in detail &&
+    "to" in detail
+  ) {
+    const d = detail as { from: string; to: string };
+    return `${d.from} ke ${d.to}`;
+  }
+  return "-";
+}
+
+async function AuditList() {
+  const session = await getSession();
+  if (!session) redirect("/");
+  if (session.role !== "HR") redirect("/beranda");
+
+  const logs = await prisma.auditLog.findMany({
+    include: { actor: { select: { name: true } } },
+    orderBy: { createdAt: "desc" },
+    take: 100,
+  });
+
+  if (logs.length === 0) {
+    return (
+      <p className="rounded-xl border border-slate-200 bg-white p-6 text-sm text-slate-600">
+        Belum ada aktivitas tercatat.
+      </p>
+    );
+  }
+
+  return (
+    <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white">
+      <table className="w-full min-w-[720px] border-collapse text-sm">
+        <thead>
+          <tr className="text-left text-slate-600">
+            <th className="p-4 font-medium">Waktu</th>
+            <th className="p-4 font-medium">Pelaku</th>
+            <th className="p-4 font-medium">Aksi</th>
+            <th className="p-4 font-medium">Objek</th>
+            <th className="p-4 font-medium">Perubahan status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {logs.map((l) => (
+            <tr key={l.id} className="border-t border-slate-200">
+              <td className="p-4 text-slate-600">
+                {timeFmt.format(l.createdAt)}
+              </td>
+              <td className="p-4 font-medium text-slate-900">
+                {l.actor.name}
+              </td>
+              <td className="p-4 text-slate-900">
+                {actionLabel[l.action] ?? l.action}
+              </td>
+              <td className="p-4 text-slate-900">
+                {entityLabel[l.entity] ?? l.entity} #{l.entityId}
+              </td>
+              <td className="p-4 text-slate-600">{formatDetail(l.detail)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+export default function AuditPage() {
+  return (
+    <div className="flex flex-col gap-6">
+      <div>
+        <h1 className="text-2xl font-semibold text-slate-900">Audit log</h1>
+        <p className="mt-1 text-sm text-slate-600">
+          100 aktivitas terakhir di sistem.
+        </p>
+      </div>
+      <Suspense
+        fallback={<p className="text-sm text-slate-600">Memuat...</p>}
+      >
+        <AuditList />
+      </Suspense>
+    </div>
+  );
+}
