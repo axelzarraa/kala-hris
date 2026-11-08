@@ -1,0 +1,130 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+enum Role {
+  EMPLOYEE
+  MANAGER
+  HR
+}
+
+enum AttendanceStatus {
+  ON_TIME
+  LATE
+  ABSENT
+  LEAVE
+}
+
+enum LeaveStatus {
+  PENDING_MANAGER
+  PENDING_HR
+  APPROVED
+  REJECTED
+  CANCELLED
+}
+
+model Department {
+  id        Int        @id @default(autoincrement())
+  name      String     @unique
+  employees Employee[]
+}
+
+model Employee {
+  id           Int        @id @default(autoincrement())
+  employeeCode String     @unique
+  name         String
+  email        String     @unique
+  passwordHash String
+  role         Role       @default(EMPLOYEE)
+  position     String
+  joinDate     DateTime
+  isActive     Boolean    @default(true)
+
+  departmentId Int
+  department   Department @relation(fields: [departmentId], references: [id])
+
+  managerId    Int?
+  manager      Employee?  @relation("Team", fields: [managerId], references: [id])
+  subordinates Employee[] @relation("Team")
+
+  attendances   Attendance[]
+  leaveBalances LeaveBalance[]
+  leaveRequests LeaveRequest[]
+  notifications Notification[]
+  auditLogs     AuditLog[]
+}
+
+model Attendance {
+  id            Int              @id @default(autoincrement())
+  employeeId    Int
+  employee      Employee         @relation(fields: [employeeId], references: [id])
+  date          DateTime         @db.Date
+  clockIn       DateTime?
+  clockInPhoto  String?
+  clockOut      DateTime?
+  clockOutPhoto String?
+  status        AttendanceStatus
+
+  @@unique([employeeId, date])
+}
+
+model LeaveType {
+  id          Int            @id @default(autoincrement())
+  name        String         @unique
+  defaultDays Int
+  balances    LeaveBalance[]
+  requests    LeaveRequest[]
+}
+
+model LeaveBalance {
+  id          Int       @id @default(autoincrement())
+  employeeId  Int
+  employee    Employee  @relation(fields: [employeeId], references: [id])
+  leaveTypeId Int
+  leaveType   LeaveType @relation(fields: [leaveTypeId], references: [id])
+  year        Int
+  totalDays   Int
+  usedDays    Int       @default(0)
+
+  @@unique([employeeId, leaveTypeId, year])
+}
+
+model LeaveRequest {
+  id          Int         @id @default(autoincrement())
+  employeeId  Int
+  employee    Employee    @relation(fields: [employeeId], references: [id])
+  leaveTypeId Int
+  leaveType   LeaveType   @relation(fields: [leaveTypeId], references: [id])
+  startDate   DateTime    @db.Date
+  endDate     DateTime    @db.Date
+  totalDays   Int
+  reason      String
+  status      LeaveStatus @default(PENDING_MANAGER)
+  reviewNote  String?
+  createdAt   DateTime    @default(now())
+}
+
+model Notification {
+  id         Int      @id @default(autoincrement())
+  employeeId Int
+  employee   Employee @relation(fields: [employeeId], references: [id])
+  message    String
+  isRead     Boolean  @default(false)
+  createdAt  DateTime @default(now())
+}
+
+model AuditLog {
+  id        Int      @id @default(autoincrement())
+  actorId   Int
+  actor     Employee @relation(fields: [actorId], references: [id])
+  action    String
+  entity    String
+  entityId  Int
+  detail    Json?
+  createdAt DateTime @default(now())
+}
