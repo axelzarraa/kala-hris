@@ -42,3 +42,6 @@ next-env.d.ts
 
 # prisma generated client
 /src/generated
+
+# foto absensi
+/public/uploads
