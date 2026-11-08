@@ -12,6 +12,7 @@ const items: { href: string; label: string; roles?: Role[] }[] = [
   { href: "/riwayat", label: "Riwayat absensi" },
   { href: "/persetujuan", label: "Persetujuan", roles: ["MANAGER", "HR"] },
   { href: "/karyawan", label: "Karyawan", roles: ["HR"] },
+  { href: "/laporan", label: "Laporan", roles: ["HR"] },
 ];
 
 const roleLabel: Record<Role, string> = {
