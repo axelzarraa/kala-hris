@@ -45,8 +45,9 @@ export default function AttendanceCard() {
     setAttendance(data.attendance);
   }, []);
 
-  useEffect(() => {
-    load();
+    useEffect(() => {
+    const t = setTimeout(load, 0);
+    return () => clearTimeout(t);
   }, [load]);
 
   // Jam mengikuti waktu server, bukan jam perangkat

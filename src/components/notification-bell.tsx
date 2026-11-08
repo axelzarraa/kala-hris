@@ -36,10 +36,13 @@ export default function NotificationBell() {
     }
   }, []);
 
-  useEffect(() => {
-    load();
+    useEffect(() => {
+    const first = setTimeout(load, 0);
     const id = setInterval(load, 15000);
-    return () => clearInterval(id);
+    return () => {
+      clearTimeout(first);
+      clearInterval(id);
+    };
   }, [load]);
 
   useEffect(() => {
