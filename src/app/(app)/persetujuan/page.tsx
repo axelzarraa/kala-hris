@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/session";
 import ApprovalActions from "@/components/approval-actions";
+import EmptyState from "@/components/empty-state";
 
 const dateFmt = new Intl.DateTimeFormat("id-ID", {
   timeZone: "UTC",
@@ -42,11 +43,12 @@ async function Approvals() {
     orderBy: { createdAt: "asc" },
   });
 
-  if (requests.length === 0) {
+    if (requests.length === 0) {
     return (
-      <p className="rounded-xl border border-slate-200 bg-white p-6 text-sm text-slate-600">
-        Tidak ada pengajuan yang menunggu persetujuanmu.
-      </p>
+      <EmptyState
+        title="Tidak ada pengajuan yang menunggu"
+        hint="Pengajuan cuti baru dari timmu akan muncul di sini."
+      />
     );
   }
 
