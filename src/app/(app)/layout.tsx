@@ -8,9 +8,9 @@ async function Shell({ children }: { children: React.ReactNode }) {
   if (!session) redirect("/");
 
   return (
-    <div className="flex min-h-screen bg-slate-50">
+      <div className="min-h-screen bg-slate-50 md:flex">
       <Sidebar name={session.name} role={session.role} />
-      <main className="min-w-0 flex-1 p-8">{children}</main>
+      <main className="min-w-0 flex-1 p-4 md:p-8">{children}</main>
     </div>
   );
 }
