@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 
 const demos = [
   { label: "Karyawan", email: "karyawan@kala.test" },
@@ -12,7 +11,6 @@ const demos = [
 const DEMO_PASSWORD = "kala12345";
 
 export default function LoginPage() {
-  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -32,7 +30,7 @@ export default function LoginPage() {
         setError(data.error ?? "Terjadi kesalahan");
         return;
       }
-      router.push("/beranda");
+      window.location.assign("/beranda");
     } catch {
       setError("Tidak bisa terhubung ke server");
     } finally {
