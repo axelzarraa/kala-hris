@@ -128,3 +128,10 @@ model AuditLog {
   detail    Json?
   createdAt DateTime @default(now())
 }
+
+model Holiday {
+  id                Int      @id @default(autoincrement())
+  date              DateTime @unique @db.Date
+  name              String
+  isCollectiveLeave Boolean  @default(false)
+}

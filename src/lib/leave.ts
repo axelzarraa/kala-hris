@@ -7,8 +7,17 @@ export function parseDateOnly(value: unknown): Date | null {
   return Number.isNaN(d.getTime()) ? null : d;
 }
 
-// Hitung hari kerja (Senin sampai Jumat), awal dan akhir ikut dihitung
-export function countWorkdays(start: Date, end: Date) {
+export function toDateKey(d: Date) {
+  return d.toISOString().slice(0, 10);
+}
+
+// Hitung hari kerja (Senin sampai Jumat), awal dan akhir ikut dihitung.
+// skipDates berisi tanggal "YYYY-MM-DD" libur nasional yang tidak dihitung.
+export function countWorkdays(
+  start: Date,
+  end: Date,
+  skipDates: ReadonlySet<string> = new Set()
+) {
   let count = 0;
   for (
     const d = new Date(start);
@@ -16,7 +25,9 @@ export function countWorkdays(start: Date, end: Date) {
     d.setUTCDate(d.getUTCDate() + 1)
   ) {
     const day = d.getUTCDay();
-    if (day !== 0 && day !== 6) count++;
+    if (day === 0 || day === 6) continue;
+    if (skipDates.has(toDateKey(d))) continue;
+    count++;
   }
   return count;
 }

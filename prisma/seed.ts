@@ -114,6 +114,47 @@ async function main() {
     }
   }
 
+  // Hari libur nasional dan cuti bersama (SKB 3 Menteri)
+  const holidays = [
+    ["2026-12-24", "Cuti Bersama Natal", true],
+    ["2026-12-25", "Hari Raya Natal", false],
+    ["2027-01-01", "Tahun Baru 2027 Masehi", false],
+    ["2027-01-05", "Isra Mikraj Nabi Muhammad SAW", false],
+    ["2027-02-05", "Cuti Bersama Tahun Baru Imlek", true],
+    ["2027-02-06", "Tahun Baru Imlek 2578", false],
+    ["2027-03-08", "Hari Suci Nyepi", false],
+    ["2027-03-09", "Cuti Bersama Idulfitri", true],
+    ["2027-03-10", "Idulfitri 1448 H", false],
+    ["2027-03-11", "Idulfitri 1448 H", false],
+    ["2027-03-12", "Cuti Bersama Idulfitri", true],
+    ["2027-03-15", "Cuti Bersama Idulfitri", true],
+    ["2027-03-25", "Cuti Bersama Wafat Yesus Kristus", true],
+    ["2027-03-26", "Wafat Yesus Kristus", false],
+    ["2027-03-28", "Kebangkitan Yesus Kristus (Paskah)", false],
+    ["2027-05-01", "Hari Buruh Internasional", false],
+    ["2027-05-06", "Kenaikan Yesus Kristus", false],
+    ["2027-05-17", "Iduladha 1448 H", false],
+    ["2027-05-18", "Cuti Bersama Iduladha", true],
+    ["2027-05-19", "Cuti Bersama Waisak", true],
+    ["2027-05-20", "Hari Raya Waisak 2571", false],
+    ["2027-06-01", "Hari Lahir Pancasila", false],
+    ["2027-06-06", "Tahun Baru Islam 1449 H", false],
+    ["2027-08-15", "Maulid Nabi Muhammad SAW", false],
+    ["2027-08-17", "Proklamasi Kemerdekaan RI", false],
+    ["2027-12-24", "Cuti Bersama Natal", true],
+    ["2027-12-25", "Hari Raya Natal", false],
+    ["2027-12-26", "Isra Mikraj Nabi Muhammad SAW", false],
+  ] as const;
+
+  for (const [date, name, isCollectiveLeave] of holidays) {
+    const d = new Date(`${date}T00:00:00Z`);
+    await prisma.holiday.upsert({
+      where: { date: d },
+      update: { name, isCollectiveLeave },
+      create: { date: d, name, isCollectiveLeave },
+    });
+  }
+
   console.log("Seed selesai");
 }
 
