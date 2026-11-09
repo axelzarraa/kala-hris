@@ -1,36 +1,64 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Kala
 
-## Getting Started
+Internal HR web app for attendance and leave management. Employees clock in with a selfie and server time, request leave, and managers and HR approve it in two steps.
 
-First, run the development server:
+**Live demo:** https://URL-KALA.vercel.app (use the one-click demo buttons on the login page)
+
+## Demo accounts
+
+| Role | Email | Password |
+|---|---|---|
+| Employee | karyawan@kala.test | kala12345 |
+| Manager | manager@kala.test | kala12345 |
+| HR | hr@kala.test | kala12345 |
+
+## Features
+
+- Login with JWT in an httpOnly cookie and role-based access (Employee, Manager, HR). The session is checked against the database on every request, so deactivated accounts lose access immediately.
+- Attendance with a selfie from the live camera and time taken from the server. Late status is calculated automatically.
+- Leave requests with workday counting (weekends excluded), balance check, and two-step approval (manager, then HR).
+- Notification bell, refreshed every 15 seconds.
+- HR tools: employee management, monthly attendance report with CSV export, and an audit log.
+
+## Tech stack
+
+Next.js 16, TypeScript, Tailwind CSS, Prisma 7 with MySQL (Aiven), Cloudinary for photos, Vitest, GitHub Actions for CI, deployed on Vercel.
+
+## Design decisions
+
+- Clock times come from the server, not the browser, so changing the device clock has no effect.
+- Photos can only be taken from the camera, not uploaded from the gallery.
+- Leave balance is deducted only when a request is approved. Pending requests still count when checking available days, so balance cannot be overbooked.
+- Approval is done inside a transaction that checks the current status, so a request can only be processed once.
+- Passwords are hashed with bcrypt, and the API never returns password hashes.
+
+## Run locally
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/axelzarraa/kala-hris.git
+cd kala-hris
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Create a `.env` file:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```env
+DATABASE_URL="mysql://root:@127.0.0.1:3306/kala_hris"
+JWT_SECRET="any-long-random-string"
+CLOUDINARY_URL="cloudinary://API_KEY:API_SECRET@CLOUD_NAME"
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Create an empty database named `kala_hris`, then:
 
-## Learn More
+```bash
+npx prisma migrate deploy
+npx prisma db seed
+npm run dev
+```
 
-To learn more about Next.js, take a look at the following resources:
+Run the tests with `npm test`.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Roadmap
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Smart leave: team conflict warning and national holidays
+- Dina, an assistant that answers questions about the employee's own attendance and leave
