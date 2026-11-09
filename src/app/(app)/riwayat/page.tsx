@@ -1,8 +1,6 @@
 import { Suspense } from "react";
-import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/session";
-import ApprovalActions from "@/components/approval-actions";
 import EmptyState from "@/components/empty-state";
 
 const dateFmt = new Intl.DateTimeFormat("id-ID", {

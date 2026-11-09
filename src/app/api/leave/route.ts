@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/session";
 import { getWibDate } from "@/lib/attendance";
-import { countWorkdays, parseDateOnly } from "@/lib/leave";
+import { countWorkdays, parseDateOnly, toDateKey } from "@/lib/leave";
 
 function fail(message: string, status: number) {
   return NextResponse.json({ error: message }, { status });
@@ -56,9 +56,19 @@ export async function POST(req: Request) {
     return fail("Pengajuan tidak boleh melewati pergantian tahun", 400);
   }
 
-  const totalDays = countWorkdays(start, end);
+    // Libur nasional tidak dihitung sebagai hari cuti. Cuti bersama tetap dihitung.
+  const holidays = await prisma.holiday.findMany({
+    where: {
+      isCollectiveLeave: false,
+      date: { gte: start, lte: end },
+    },
+    select: { date: true },
+  });
+  const skipDates = new Set(holidays.map((h) => toDateKey(h.date)));
+
+  const totalDays = countWorkdays(start, end, skipDates);
   if (totalDays === 0) {
-    return fail("Rentang tanggal hanya berisi akhir pekan", 400);
+    return fail("Rentang tanggal hanya berisi akhir pekan atau libur nasional", 400);
   }
 
   const employeeId = Number(session.sub);
