@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/session";
+import EmptyState from "@/components/empty-state";
 
 const timeFmt = new Intl.DateTimeFormat("id-ID", {
   timeZone: "Asia/Jakarta",
@@ -51,11 +52,12 @@ async function AuditList() {
     take: 100,
   });
 
-  if (logs.length === 0) {
+    if (logs.length === 0) {
     return (
-      <p className="rounded-xl border border-slate-200 bg-white p-6 text-sm text-slate-600">
-        Belum ada aktivitas tercatat.
-      </p>
+      <EmptyState
+        title="Belum ada aktivitas tercatat"
+        hint="Pengajuan cuti, persetujuan, dan perubahan data karyawan akan tercatat di sini."
+      />
     );
   }
 

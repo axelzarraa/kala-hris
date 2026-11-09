@@ -2,7 +2,7 @@
 
 Internal HR web app for attendance and leave management. Employees clock in with a selfie and server time, request leave, and managers and HR approve it in two steps.
 
-**Live demo:** https://URL-KALA.vercel.app (use the one-click demo buttons on the login page)
+**Live demo:** https://kala-hris.vercel.app (use the one-click demo buttons on the login page)
 
 ## Demo accounts
 
