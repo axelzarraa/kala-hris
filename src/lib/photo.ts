@@ -1,5 +1,5 @@
-import { mkdir, writeFile } from "fs/promises";
-import path from "path";
+import { v2 as cloudinary } from "cloudinary";
+import { randomUUID } from "crypto";
 
 const MAX_BYTES = 2 * 1024 * 1024;
 
@@ -15,10 +15,11 @@ export async function saveAttendancePhoto(
   const buffer = Buffer.from(match[1], "base64");
   if (buffer.length > MAX_BYTES) throw new Error("Ukuran foto terlalu besar");
 
-  const dir = path.join(process.cwd(), "public", "uploads", "attendance");
-  await mkdir(dir, { recursive: true });
+  const result = await cloudinary.uploader.upload(dataUrl, {
+    folder: "kala/attendance",
+    public_id: `${employeeId}-${dateKey}-${type}-${randomUUID()}`,
+    resource_type: "image",
+  });
 
-  const fileName = `${employeeId}-${dateKey}-${type}.jpg`;
-  await writeFile(path.join(dir, fileName), buffer);
-  return `/uploads/attendance/${fileName}`;
+  return result.secure_url;
 }
