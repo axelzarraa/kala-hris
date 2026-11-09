@@ -30,6 +30,8 @@ export default function LoginPage() {
         setError(data.error ?? "Terjadi kesalahan");
         return;
       }
+      // Full page navigation on purpose: router.push can reuse a stale cached redirect after login.
+      // eslint-disable-next-line @next/next/no-location-assign-relative-destination
       window.location.assign("/beranda");
     } catch {
       setError("Tidak bisa terhubung ke server");
