@@ -16,7 +16,11 @@ Internal HR web app for attendance and leave management. Employees clock in with
 
 - Login with JWT in an httpOnly cookie and role-based access (Employee, Manager, HR). The session is checked against the database on every request, so deactivated accounts lose access immediately.
 - Attendance with a selfie from the live camera and time taken from the server. Late status is calculated automatically.
-- Leave requests with workday counting (weekends excluded), balance check, and two-step approval (manager, then HR).
+- Leave requests with workday counting (weekends and national holidays excluded), balance check, and two-step approval (manager, then HR). Collective leave days still count as leave.
+- Leave balances are created on demand, so requests can be made for this year or next year.
+- Team conflict warning in the leave form when a teammate with the same manager already has leave on those dates.
+- Long weekend suggestions on the leave page: short leave ranges that bridge a national holiday into a longer break.
+- Team calendar for managers and HR: a monthly view of who is on leave (approved and pending) and which days are holidays.
 - Notification bell, refreshed every 15 seconds.
 - HR tools: employee management, monthly attendance report with CSV export, and an audit log.
 
@@ -31,6 +35,7 @@ Next.js 16, TypeScript, Tailwind CSS, Prisma 7 with MySQL (Aiven), Cloudinary fo
 - Leave balance is deducted only when a request is approved. Pending requests still count when checking available days, so balance cannot be overbooked.
 - Approval is done inside a transaction that checks the current status, so a request can only be processed once.
 - Passwords are hashed with bcrypt, and the API never returns password hashes.
+- National holidays do not use up leave balance. Collective leave days are optional per the government, so they are counted as normal leave. Holiday data covers December 2026 and all of 2027, based on the government's joint decree (SKB 3 Menteri).
 
 ## Run locally
 
@@ -60,5 +65,5 @@ Run the tests with `npm test`.
 
 ## Roadmap
 
-- Smart leave: team conflict warning and national holidays
+- Holiday data for 2028 onward
 - Dina, an assistant that answers questions about the employee's own attendance and leave
