@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { getWibDate } from "@/lib/attendance";
-import { countWorkdays } from "@/lib/leave";
+import { countWorkdays, toDateKey } from "@/lib/leave";
 
 // Ganti ke "," kalau Excel-mu memakai pengaturan regional Inggris
 const SEPARATOR = ";";
@@ -35,7 +35,7 @@ export async function getMonthlyReport(
   start: Date,
   end: Date
 ): Promise<ReportRow[]> {
-  const [employees, attendances, leaves] = await Promise.all([
+    const [employees, attendances, leaves, holidays] = await Promise.all([
     prisma.employee.findMany({
       where: { isActive: true },
       select: {
@@ -56,9 +56,16 @@ export async function getMonthlyReport(
         startDate: { lte: end },
         endDate: { gte: start },
       },
-      select: { employeeId: true, startDate: true, endDate: true },
+            select: { employeeId: true, startDate: true, endDate: true },
+    }),
+    prisma.holiday.findMany({
+      where: { isCollectiveLeave: false, date: { gte: start, lte: end } },
+      select: { date: true },
     }),
   ]);
+
+  // Libur nasional tidak dihitung sebagai hari cuti
+  const skipDates = new Set(holidays.map((h) => toDateKey(h.date)));
 
   return employees.map((e) => {
     const att = attendances.filter((a) => a.employeeId === e.id);
@@ -68,7 +75,7 @@ export async function getMonthlyReport(
       .reduce((sum, l) => {
         const from = l.startDate > start ? l.startDate : start;
         const to = l.endDate < end ? l.endDate : end;
-        return sum + countWorkdays(from, to);
+        return sum + countWorkdays(from, to, skipDates);
       }, 0);
 
     return {
