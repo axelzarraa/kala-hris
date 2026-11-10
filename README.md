@@ -21,6 +21,7 @@ Internal HR web app for attendance and leave management. Employees clock in with
 - Team conflict warning in the leave form when a teammate with the same manager already has leave on those dates.
 - Long weekend suggestions on the leave page: short leave ranges that bridge a national holiday into a longer break.
 - Team calendar for managers and HR: a monthly view of who is on leave (approved and pending) and which days are holidays.
+- Dina, an AI assistant (Gemini with read-only function calling) that answers questions about the employee's own attendance, leave balance, leave requests, and upcoming holidays. The employee ID always comes from the server session, never from the model, so Dina cannot read other people's data.
 - Notification bell, refreshed every 15 seconds.
 - HR tools: employee management, monthly attendance report with CSV export, and an audit log.
 
@@ -51,6 +52,7 @@ Create a `.env` file:
 DATABASE_URL="mysql://root:@127.0.0.1:3306/kala_hris"
 JWT_SECRET="any-long-random-string"
 CLOUDINARY_URL="cloudinary://API_KEY:API_SECRET@CLOUD_NAME"
+GEMINI_API_KEY="your-gemini-api-key"
 ```
 
 Create an empty database named `kala_hris`, then:
@@ -66,4 +68,4 @@ Run the tests with `npm test`.
 ## Roadmap
 
 - Holiday data for 2028 onward
-- Dina, an assistant that answers questions about the employee's own attendance and leave
+- Cancel a pending leave request
