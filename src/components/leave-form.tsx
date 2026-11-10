@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { countWorkdays, parseDateOnly } from "@/lib/leave";
+import type { BridgeSuggestion } from "@/lib/bridges";
 
 type LeaveType = { id: number; name: string };
 type HolidayItem = { date: string; name: string; isCollectiveLeave: boolean };
@@ -25,15 +26,24 @@ function formatRange(start: string, end: string) {
   return start === end ? s : `${s} - ${shortDate.format(parseDateOnly(end)!)}`;
 }
 
+function rangeText(start: string, end: string) {
+  const s = shortDate.format(parseDateOnly(start)!);
+  return start === end
+    ? s
+    : `${s} sampai ${shortDate.format(parseDateOnly(end)!)}`;
+}
+
 const inputCls =
   "min-h-11 w-full rounded-lg border border-slate-300 px-3 text-sm font-normal outline-none focus:border-indigo-600";
 
 export default function LeaveForm({
   leaveTypes,
   holidays = [],
+  suggestions = [],
 }: {
   leaveTypes: LeaveType[];
   holidays?: HolidayItem[];
+  suggestions?: BridgeSuggestion[];
 }) {
   const router = useRouter();
   const today = new Date().toLocaleDateString("sv-SE", {
@@ -50,9 +60,10 @@ export default function LeaveForm({
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
 
-    // Hanya libur nasional yang dilewatkan, cuti bersama tetap dihitung
+  // Hanya libur nasional yang dilewatkan, cuti bersama tetap dihitung
   const skipDates = useMemo(
-    () => new Set(holidays.filter((h) => !h.isCollectiveLeave).map((h) => h.date)),
+    () =>
+      new Set(holidays.filter((h) => !h.isCollectiveLeave).map((h) => h.date)),
     [holidays]
   );
 
@@ -70,7 +81,7 @@ export default function LeaveForm({
       const d = parseDateOnly(h.date);
       return d !== null && d.getUTCDay() !== 0 && d.getUTCDay() !== 6;
     });
-    }, [holidays, startDate, endDate]);
+  }, [holidays, startDate, endDate]);
 
   // Teman satu tim yang cutinya beririsan (hanya peringatan)
   const rangeKey =
@@ -104,6 +115,13 @@ export default function LeaveForm({
       controller.abort();
     };
   }, [rangeKey]);
+
+  function applySuggestion(s: BridgeSuggestion) {
+    setStartDate(s.leaveStart);
+    setEndDate(s.leaveEnd);
+    setError("");
+    setSuccess("");
+  }
 
   async function submit(ev: React.FormEvent) {
     ev.preventDefault();
@@ -155,6 +173,36 @@ export default function LeaveForm({
         </select>
       </label>
 
+      {suggestions.length > 0 && (
+        <div className="rounded-lg border border-indigo-200 bg-indigo-50 p-3 text-sm text-indigo-950">
+          <p className="font-medium">Saran libur panjang</p>
+          <p className="mt-0.5 text-xs text-indigo-900">
+            Saran ini memakai jatah cuti tahunan.
+          </p>
+          <ul className="mt-2 flex flex-col gap-3">
+            {suggestions.map((s) => (
+              <li
+                key={`${s.leaveStart}|${s.leaveEnd}`}
+                className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between"
+              >
+                <span>
+                  Ambil cuti {rangeText(s.leaveStart, s.leaveEnd)} ({s.leaveDays}{" "}
+                  hari), libur {rangeText(s.offStart, s.offEnd)} ({s.offDays}{" "}
+                  hari), karena {s.holidayName}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => applySuggestion(s)}
+                  className="min-h-11 shrink-0 self-start rounded-lg border border-indigo-300 bg-white px-4 text-sm font-medium text-indigo-700 hover:bg-indigo-100"
+                >
+                  Pakai tanggal ini
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
       <div className="grid gap-4 sm:grid-cols-2">
         <label className="flex flex-col gap-1.5 text-sm font-medium text-slate-800">
           Mulai
@@ -198,7 +246,7 @@ export default function LeaveForm({
         />
       </label>
 
-            <div className="flex flex-col gap-1 text-sm text-slate-600">
+      <div className="flex flex-col gap-1 text-sm text-slate-600">
         <p>
           {days > 0
             ? `Durasi: ${days} hari kerja (akhir pekan dan libur nasional tidak dihitung)`
@@ -217,8 +265,8 @@ export default function LeaveForm({
           );
         })}
       </div>
-      
-            {conflicts.length > 0 && (
+
+      {conflicts.length > 0 && (
         <div
           role="status"
           className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900"

@@ -4,6 +4,7 @@ import { getSession } from "@/lib/session";
 import { getWibDate } from "@/lib/attendance";
 import LeaveForm from "@/components/leave-form";
 import { toDateKey } from "@/lib/leave";
+import { findBridgeSuggestions } from "@/lib/bridges";
 
 const dateFmt = new Intl.DateTimeFormat("id-ID", {
   timeZone: "UTC",
@@ -33,14 +34,14 @@ async function LeaveContent() {
   const employeeId = Number(session.sub);
   const year = getWibDate(new Date()).getUTCFullYear();
 
-    const [leaveTypes, balances, requests, holidays] = await Promise.all([
+  const [leaveTypes, balances, requests, holidays] = await Promise.all([
     prisma.leaveType.findMany({ orderBy: { id: "asc" } }),
     prisma.leaveBalance.findMany({
       where: { employeeId, year },
       include: { leaveType: true },
       orderBy: { leaveTypeId: "asc" },
     }),
-        prisma.leaveRequest.findMany({
+    prisma.leaveRequest.findMany({
       where: { employeeId },
       include: { leaveType: true },
       orderBy: { createdAt: "desc" },
@@ -52,19 +53,30 @@ async function LeaveContent() {
     }),
   ]);
 
+  const holidayItems = holidays.map((h) => ({
+    date: toDateKey(h.date),
+    name: h.name,
+    isCollectiveLeave: h.isCollectiveLeave,
+  }));
+  const todayKey = toDateKey(getWibDate(new Date()));
+  const suggestions = findBridgeSuggestions(holidayItems, todayKey, 6)
+    .filter((s) => {
+      const startYear = Number(s.leaveStart.slice(0, 4));
+      const endYear = Number(s.leaveEnd.slice(0, 4));
+      return startYear === endYear && startYear <= year + 1;
+    })
+    .slice(0, 3);
+
   return (
     <div className="grid gap-6 lg:grid-cols-3">
       <section className="rounded-xl border border-slate-200 bg-white p-6 lg:col-span-2">
         <h2 className="mb-4 text-base font-semibold text-slate-900">
           Ajukan cuti
         </h2>
-                <LeaveForm
+        <LeaveForm
           leaveTypes={leaveTypes.map((t) => ({ id: t.id, name: t.name }))}
-          holidays={holidays.map((h) => ({
-            date: toDateKey(h.date),
-            name: h.name,
-            isCollectiveLeave: h.isCollectiveLeave,
-          }))}
+          holidays={holidayItems}
+          suggestions={suggestions}
         />
       </section>
 
