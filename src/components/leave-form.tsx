@@ -173,33 +173,33 @@ export default function LeaveForm({
         </select>
       </label>
 
-      {suggestions.length > 0 && (
-        <div className="rounded-lg border border-indigo-200 bg-indigo-50 p-3 text-sm text-indigo-950">
-          <p className="font-medium">Saran libur panjang</p>
-          <p className="mt-0.5 text-xs text-indigo-900">
-            Saran ini memakai jatah cuti tahunan.
+            {suggestions.length > 0 && (
+        <div className="flex flex-col gap-2">
+          <p className="text-sm font-medium text-slate-800">
+            Saran libur panjang
+            <span className="font-normal text-slate-600">
+              {" "}
+              (memakai jatah cuti tahunan)
+            </span>
           </p>
-          <ul className="mt-2 flex flex-col gap-3">
+          <div className="flex flex-wrap gap-2">
             {suggestions.map((s) => (
-              <li
+              <button
                 key={`${s.leaveStart}|${s.leaveEnd}`}
-                className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between"
+                type="button"
+                onClick={() => applySuggestion(s)}
+                className="flex min-h-11 flex-col rounded-lg border border-indigo-200 bg-indigo-50 px-3 py-1.5 text-left text-sm hover:border-indigo-600 hover:bg-indigo-100"
               >
-                <span>
-                  Ambil cuti {rangeText(s.leaveStart, s.leaveEnd)} ({s.leaveDays}{" "}
-                  hari), libur {rangeText(s.offStart, s.offEnd)} ({s.offDays}{" "}
-                  hari), karena {s.holidayName}
+                <span className="font-medium text-indigo-950">
+                  Libur {rangeText(s.offStart, s.offEnd)} ({s.offDays} hari)
                 </span>
-                <button
-                  type="button"
-                  onClick={() => applySuggestion(s)}
-                  className="min-h-11 shrink-0 self-start rounded-lg border border-indigo-300 bg-white px-4 text-sm font-medium text-indigo-700 hover:bg-indigo-100"
-                >
-                  Pakai tanggal ini
-                </button>
-              </li>
+                <span className="text-xs text-indigo-900">
+                  Cuti {rangeText(s.leaveStart, s.leaveEnd)}, {s.leaveDays} hari
+                  · {s.holidayName}
+                </span>
+              </button>
             ))}
-          </ul>
+          </div>
         </div>
       )}
 

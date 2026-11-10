@@ -46,7 +46,7 @@ async function LeaveContent() {
       where: { employeeId },
       include: { leaveType: true },
       orderBy: { createdAt: "desc" },
-      take: 20,
+      take: 5,
     }),
     prisma.holiday.findMany({
       where: { date: { gte: getWibDate(new Date()) } },
@@ -68,54 +68,75 @@ async function LeaveContent() {
     })
     .slice(0, 3);
 
-  return (
-    <div className="grid gap-6 lg:grid-cols-3">
-      <section className="rounded-xl border border-slate-200 bg-white p-6 lg:col-span-2">
-        <h2 className="mb-4 text-base font-semibold text-slate-900">
-          Ajukan cuti
-        </h2>
-        <LeaveForm
-          leaveTypes={leaveTypes.map((t) => ({ id: t.id, name: t.name }))}
-          holidays={holidayItems}
-          suggestions={suggestions}
-        />
-      </section>
-
-      <div className="flex flex-col gap-6">
-        <section className="rounded-xl border border-slate-200 bg-white p-6">
-          <h2 className="mb-4 text-base font-semibold text-slate-900">
-            Sisa cuti {year}
-          </h2>
-          <ul className="flex flex-col gap-3">
-            {balances.map((b) => (
-              <li
-                key={b.id}
-                className="flex items-baseline justify-between text-sm"
-              >
-                <span className="text-slate-600">{b.leaveType.name}</span>
-                <span className="text-slate-900">
-                  <span className="text-2xl font-semibold">
-                    {b.totalDays - b.usedDays}
-                  </span>{" "}
-                  / {b.totalDays} hari
+    return (
+    <div className="flex flex-col gap-6">
+      <div className="grid gap-4 sm:grid-cols-2">
+        {balances.map((b) => {
+          const left = b.totalDays - b.usedDays;
+          const pct =
+            b.totalDays > 0 ? Math.round((left / b.totalDays) * 100) : 0;
+          return (
+            <div
+              key={b.id}
+              className="rounded-2xl border border-slate-200 bg-white p-5"
+            >
+              <p className="text-sm text-slate-600">
+                {b.leaveType.name} {year}
+              </p>
+              <p className="mt-2 text-slate-900">
+                <span className="text-4xl font-bold tracking-tight">
+                  {left}
                 </span>
-              </li>
-            ))}
-          </ul>
+                <span className="text-sm text-slate-600">
+                  {" "}
+                  / {b.totalDays} hari tersisa
+                </span>
+              </p>
+              <div
+                className="mt-4 h-2 overflow-hidden rounded-full bg-slate-100"
+                role="progressbar"
+                aria-label={`Sisa ${b.leaveType.name}`}
+                aria-valuenow={left}
+                aria-valuemin={0}
+                aria-valuemax={b.totalDays}
+              >
+                <div
+                  className="h-full rounded-full bg-indigo-600"
+                  style={{ width: `${pct}%` }}
+                />
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="grid gap-6 lg:grid-cols-3">
+        <section className="rounded-2xl border border-slate-200 bg-white p-6 lg:col-span-2">
+          <h2 className="mb-4 text-lg font-bold tracking-tight text-slate-900">
+            Ajukan cuti
+          </h2>
+          <LeaveForm
+            leaveTypes={leaveTypes.map((t) => ({ id: t.id, name: t.name }))}
+            holidays={holidayItems}
+            suggestions={suggestions}
+          />
         </section>
 
-        <section className="rounded-xl border border-slate-200 bg-white p-6">
-          <h2 className="mb-4 text-base font-semibold text-slate-900">
+        <section className="rounded-2xl border border-slate-200 bg-white p-6">
+          <h2 className="mb-4 text-lg font-bold tracking-tight text-slate-900">
             Riwayat pengajuan
           </h2>
           {requests.length === 0 ? (
             <p className="text-sm text-slate-600">Belum ada pengajuan.</p>
           ) : (
-            <ul className="flex flex-col gap-4">
+          <ul className="flex flex-col divide-y divide-slate-100">
               {requests.map((r) => {
                 const s = statusStyle[r.status];
                 return (
-                  <li key={r.id} className="flex flex-col gap-1 text-sm">
+                  <li
+                    key={r.id}
+                    className="flex flex-col gap-1 py-4 text-sm first:pt-0 last:pb-0"
+                  >
                     <div className="flex items-center justify-between gap-2">
                       <span className="font-medium text-slate-900">
                         {r.leaveType.name}, {r.totalDays} hari
@@ -129,7 +150,7 @@ async function LeaveContent() {
                     <span className="text-slate-600">
                       {formatRange(r.startDate, r.endDate)}
                     </span>
-                      {(r.status === "PENDING_MANAGER" ||
+                    {(r.status === "PENDING_MANAGER" ||
                       r.status === "PENDING_HR") && (
                       <CancelLeaveButton id={r.id} />
                     )}

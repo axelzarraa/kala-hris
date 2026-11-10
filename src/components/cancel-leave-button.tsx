@@ -54,7 +54,7 @@ export default function CancelLeaveButton({ id }: { id: number }) {
         <button
           type="button"
           onClick={() => setConfirming(true)}
-          className="min-h-11 self-start rounded-lg border border-red-200 px-3 text-xs font-medium text-red-700 hover:bg-red-50"
+          className="min-h-11 self-start text-xs font-medium text-red-700 underline-offset-2 hover:underline"
         >
           Batalkan pengajuan
         </button>
