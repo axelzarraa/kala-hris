@@ -1,17 +1,29 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { countWorkdays, parseDateOnly } from "@/lib/leave";
 
 type LeaveType = { id: number; name: string };
 type HolidayItem = { date: string; name: string; isCollectiveLeave: boolean };
 
+type Conflict = {
+  name: string;
+  startDate: string;
+  endDate: string;
+  approved: boolean;
+};
+
 const shortDate = new Intl.DateTimeFormat("id-ID", {
   timeZone: "UTC",
   day: "numeric",
   month: "short",
 });
+
+function formatRange(start: string, end: string) {
+  const s = shortDate.format(parseDateOnly(start)!);
+  return start === end ? s : `${s} - ${shortDate.format(parseDateOnly(end)!)}`;
+}
 
 const inputCls =
   "min-h-11 w-full rounded-lg border border-slate-300 px-3 text-sm font-normal outline-none focus:border-indigo-600";
@@ -58,7 +70,40 @@ export default function LeaveForm({
       const d = parseDateOnly(h.date);
       return d !== null && d.getUTCDay() !== 0 && d.getUTCDay() !== 6;
     });
-  }, [holidays, startDate, endDate]);
+    }, [holidays, startDate, endDate]);
+
+  // Teman satu tim yang cutinya beririsan (hanya peringatan)
+  const rangeKey =
+    startDate && endDate && endDate >= startDate
+      ? `${startDate}|${endDate}`
+      : "";
+  const [conflictState, setConflictState] = useState<{
+    key: string;
+    items: Conflict[];
+  } | null>(null);
+  const conflicts = conflictState?.key === rangeKey ? conflictState.items : [];
+
+  useEffect(() => {
+    if (!rangeKey) return;
+    const [s, e] = rangeKey.split("|");
+    const controller = new AbortController();
+    const timer = setTimeout(async () => {
+      try {
+        const res = await fetch(`/api/leave/conflicts?start=${s}&end=${e}`, {
+          signal: controller.signal,
+        });
+        if (!res.ok) return;
+        const data = await res.json();
+        setConflictState({ key: rangeKey, items: data.conflicts });
+      } catch {
+        // dibatalkan atau jaringan putus, peringatan ini tidak wajib
+      }
+    }, 300);
+    return () => {
+      clearTimeout(timer);
+      controller.abort();
+    };
+  }, [rangeKey]);
 
   async function submit(ev: React.FormEvent) {
     ev.preventDefault();
@@ -172,6 +217,23 @@ export default function LeaveForm({
           );
         })}
       </div>
+      
+            {conflicts.length > 0 && (
+        <div
+          role="status"
+          className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900"
+        >
+          <p className="font-medium">Teman satu tim sudah cuti di tanggal ini</p>
+          <ul className="mt-1 list-disc pl-5">
+            {conflicts.map((c, i) => (
+              <li key={`${c.name}-${c.startDate}-${i}`}>
+                {c.name}, {formatRange(c.startDate, c.endDate)} (
+                {c.approved ? "disetujui" : "menunggu persetujuan"})
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       {error && (
         <p role="alert" className="text-sm text-red-700">
