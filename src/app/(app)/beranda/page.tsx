@@ -93,21 +93,41 @@ async function LeaveSummary() {
   return (
     <section className="flex h-full flex-col gap-4 rounded-xl border border-slate-200 bg-white p-6">
       <h2 className="text-base font-semibold text-slate-900">Sisa cuti</h2>
-      <ul className="flex flex-col gap-3">
-        {balances.map((b) => (
-          <li key={b.id} className="flex items-baseline justify-between text-sm">
-            <span className="text-slate-600">{b.leaveType.name}</span>
-            <span className="text-slate-900">
-              <span className="text-2xl font-semibold">
-                {b.totalDays - b.usedDays}
-              </span>{" "}
-              / {b.totalDays} hari
-            </span>
-          </li>
-        ))}
+            <ul className="flex flex-col gap-4">
+        {balances.map((b) => {
+          const remaining = b.totalDays - b.usedDays;
+          const pct =
+            b.totalDays > 0 ? Math.round((remaining / b.totalDays) * 100) : 0;
+          return (
+            <li key={b.id} className="flex flex-col gap-2">
+              <div className="flex items-baseline justify-between text-sm">
+                <span className="text-slate-600">{b.leaveType.name}</span>
+                <span className="text-slate-900">
+                  <span className="text-2xl font-bold tabular-nums">
+                    {remaining}
+                  </span>{" "}
+                  <span className="text-slate-600">/ {b.totalDays} hari</span>
+                </span>
+              </div>
+              <div
+                role="progressbar"
+                aria-label={`Sisa ${b.leaveType.name}`}
+                aria-valuenow={remaining}
+                aria-valuemin={0}
+                aria-valuemax={b.totalDays}
+                className="h-1.5 overflow-hidden rounded-full bg-slate-100"
+              >
+                <div
+                  className="h-full rounded-full bg-indigo-600"
+                  style={{ width: `${pct}%` }}
+                />
+              </div>
+            </li>
+          );
+        })}
       </ul>
 
-      <h2 className="mt-2 text-base font-semibold text-slate-900">
+      <h2 className="mt-2 border-t border-slate-200 pt-4 text-base font-semibold text-slate-900">
         Pengajuan terakhir
       </h2>
       {last ? (
@@ -164,8 +184,8 @@ async function RecentAttendance() {
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full min-w-[480px] border-collapse text-sm">
-            <thead>
-              <tr className="text-left text-slate-600">
+                        <thead>
+              <tr className="text-left text-xs text-slate-600">
                 <th className="py-2 pr-4 font-medium">Tanggal</th>
                 <th className="py-2 pr-4 font-medium">Masuk</th>
                 <th className="py-2 pr-4 font-medium">Pulang</th>
@@ -176,20 +196,27 @@ async function RecentAttendance() {
               {rows.map((r) => {
                 const s = attendanceStyle[r.status];
                 return (
-                  <tr key={r.id} className="border-t border-slate-200">
-                    <td className="py-3 pr-4 text-slate-900">
+                  <tr
+                    key={r.id}
+                    className="border-t border-slate-200 transition-colors hover:bg-slate-50"
+                  >
+                    <td className="py-3 pr-4 font-medium text-slate-900">
                       {dayFmt.format(r.date)}
                     </td>
-                    <td className="py-3 pr-4 text-slate-900">
+                    <td className="py-3 pr-4 tabular-nums text-slate-900">
                       {r.clockIn ? timeFmt.format(r.clockIn) : "--:--"}
                     </td>
-                    <td className="py-3 pr-4 text-slate-900">
+                    <td className="py-3 pr-4 tabular-nums text-slate-900">
                       {r.clockOut ? timeFmt.format(r.clockOut) : "--:--"}
                     </td>
                     <td className="py-3">
                       <span
-                        className={`rounded-full px-3 py-1 text-xs ${s.cls}`}
+                        className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium ${s.cls}`}
                       >
+                        <span
+                          className="h-1.5 w-1.5 rounded-full bg-current"
+                          aria-hidden="true"
+                        />
                         {s.label}
                       </span>
                     </td>
