@@ -11,6 +11,7 @@ const items: { href: string; label: string; roles?: Role[] }[] = [
   { href: "/beranda", label: "Beranda" },
   { href: "/cuti", label: "Cuti" },
   { href: "/riwayat", label: "Riwayat absensi" },
+  { href: "/dina", label: "Dina" },
   { href: "/persetujuan", label: "Persetujuan", roles: ["MANAGER", "HR"] },
   { href: "/kalender", label: "Kalender tim", roles: ["MANAGER", "HR"] },
   { href: "/karyawan", label: "Karyawan", roles: ["HR"] },
