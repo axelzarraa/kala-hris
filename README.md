@@ -18,6 +18,7 @@ Internal HR web app for attendance and leave management. Employees clock in with
 - Attendance with a selfie from the live camera and time taken from the server. Late status is calculated automatically.
 - Leave requests with workday counting (weekends and national holidays excluded), balance check, and two-step approval (manager, then HR). Collective leave days still count as leave.
 - Leave balances are created on demand, so requests can be made for this year or next year.
+- Employees can cancel their own leave requests while they are still pending. The current approver is notified and the action is written to the audit log.
 - Team conflict warning in the leave form when a teammate with the same manager already has leave on those dates.
 - Long weekend suggestions on the leave page: short leave ranges that bridge a national holiday into a longer break.
 - Team calendar for managers and HR: a monthly view of who is on leave (approved and pending) and which days are holidays.
@@ -68,4 +69,3 @@ Run the tests with `npm test`.
 ## Roadmap
 
 - Holiday data for 2028 onward
-- Cancel a pending leave request
