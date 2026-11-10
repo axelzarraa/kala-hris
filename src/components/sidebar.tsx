@@ -7,17 +7,121 @@ import NotificationBell from "@/components/notification-bell";
 
 type Role = "EMPLOYEE" | "MANAGER" | "HR";
 
-const items: { href: string; label: string; roles?: Role[] }[] = [
-  { href: "/beranda", label: "Beranda" },
-  { href: "/cuti", label: "Cuti" },
-  { href: "/riwayat", label: "Riwayat absensi" },
-  { href: "/dina", label: "Dina" },
-  { href: "/persetujuan", label: "Persetujuan", roles: ["MANAGER", "HR"] },
-  { href: "/kalender", label: "Kalender tim", roles: ["MANAGER", "HR"] },
-  { href: "/karyawan", label: "Karyawan", roles: ["HR"] },
-  { href: "/laporan", label: "Laporan", roles: ["HR"] },
-  { href: "/audit", label: "Audit log", roles: ["HR"] },
+type IconName =
+  | "home"
+  | "calendar"
+  | "clock"
+  | "chat"
+  | "check"
+  | "team"
+  | "users"
+  | "chart"
+  | "shield";
+
+const items: { href: string; label: string; icon: IconName; roles?: Role[] }[] = [
+  { href: "/beranda", label: "Beranda", icon: "home" },
+  { href: "/cuti", label: "Cuti", icon: "calendar" },
+  { href: "/riwayat", label: "Riwayat absensi", icon: "clock" },
+  { href: "/dina", label: "Dina", icon: "chat" },
+  { href: "/persetujuan", label: "Persetujuan", icon: "check", roles: ["MANAGER", "HR"] },
+  { href: "/kalender", label: "Kalender tim", icon: "team", roles: ["MANAGER", "HR"] },
+  { href: "/karyawan", label: "Karyawan", icon: "users", roles: ["HR"] },
+  { href: "/laporan", label: "Laporan", icon: "chart", roles: ["HR"] },
+  { href: "/audit", label: "Audit log", icon: "shield", roles: ["HR"] },
 ];
+
+const iconPaths: Record<IconName, React.ReactNode> = {
+  home: <path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z" />,
+  calendar: (
+    <>
+      <rect x="3" y="5" width="18" height="16" rx="2" />
+      <path d="M3 10h18M8 3v4M16 3v4" />
+    </>
+  ),
+  clock: (
+    <>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 7v5l3 2" />
+    </>
+  ),
+  chat: <path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z" />,
+  check: (
+    <>
+      <circle cx="12" cy="12" r="9" />
+      <path d="m8 12.5 3 3 5-6" />
+    </>
+  ),
+  team: (
+    <>
+      <rect x="3" y="5" width="18" height="16" rx="2" />
+      <path d="M3 10h18M8 3v4M16 3v4M8 15h.01M12 15h.01M16 15h.01" />
+    </>
+  ),
+  users: (
+    <>
+      <circle cx="9" cy="8" r="3.5" />
+      <path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.6a3.5 3.5 0 0 1 0 6.8M21.5 20a6.5 6.5 0 0 0-4-6" />
+    </>
+  ),
+  chart: <path d="M4 20h16M7 16v-5M12 16V6M17 16v-8" />,
+  shield: (
+    <>
+      <path d="M12 3 4 6v6c0 4.5 3.2 7.8 8 9 4.8-1.2 8-4.5 8-9V6z" />
+      <path d="m9 12 2 2 4-4" />
+    </>
+  ),
+};
+
+function Icon({ name }: { name: IconName }) {
+  return (
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      {iconPaths[name]}
+    </svg>
+  );
+}
+
+function Brand() {
+  return (
+    <div className="flex items-center gap-2.5">
+      <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-600 text-white">
+        <svg
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2.2"
+          strokeLinecap="round"
+          aria-hidden="true"
+        >
+          <circle cx="12" cy="12" r="8.5" />
+          <path d="M12 7.5V12l3 2" />
+        </svg>
+      </span>
+      <p className="text-lg font-bold tracking-tight text-slate-900">Kala</p>
+    </div>
+  );
+}
+
+function initials(name: string) {
+  return name
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((s) => s[0])
+    .join("")
+    .toUpperCase();
+}
 
 const roleLabel: Record<Role, string> = {
   EMPLOYEE: "Karyawan",
@@ -58,7 +162,7 @@ export default function Sidebar({ name, role }: { name: string; role: Role }) {
             <path d="M4 6h16M4 12h16M4 18h16" />
           </svg>
         </button>
-        <p className="text-lg font-semibold text-indigo-600">Kala</p>
+        <Brand />
       </header>
 
       {open && (
@@ -75,7 +179,7 @@ export default function Sidebar({ name, role }: { name: string; role: Role }) {
         }`}
       >
         <div className="flex items-center justify-between pb-5 pl-3">
-          <p className="text-lg font-semibold text-indigo-600">Kala</p>
+          <Brand />
           <div className="flex items-center gap-1">
             <NotificationBell />
             <button
@@ -106,7 +210,7 @@ export default function Sidebar({ name, role }: { name: string; role: Role }) {
             .map((i) => {
               const active = pathname.startsWith(i.href);
               return (
-                <Link
+                                <Link
                   key={i.href}
                   href={i.href}
                   onClick={() => setOpen(false)}
@@ -123,8 +227,18 @@ export default function Sidebar({ name, role }: { name: string; role: Role }) {
         </nav>
 
         <div className="mt-auto border-t border-slate-200 pt-4">
-          <p className="px-3 text-sm font-medium text-slate-900">{name}</p>
-          <p className="px-3 text-xs text-slate-600">{roleLabel[role]}</p>
+                    <div className="flex items-center gap-3 px-3">
+            <span
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-indigo-100 text-sm font-semibold text-indigo-800"
+              aria-hidden="true"
+            >
+              {initials(name)}
+            </span>
+            <div className="min-w-0">
+              <p className="truncate text-sm font-medium text-slate-900">{name}</p>
+              <p className="text-xs text-slate-600">{roleLabel[role]}</p>
+            </div>
+          </div>
           <button
             type="button"
             onClick={logout}
