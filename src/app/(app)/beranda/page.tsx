@@ -19,6 +19,28 @@ const timeFmt = new Intl.DateTimeFormat("en-GB", {
   hour12: false,
 });
 
+const dateLongFmt = new Intl.DateTimeFormat("id-ID", {
+  timeZone: "Asia/Jakarta",
+  weekday: "long",
+  day: "numeric",
+  month: "long",
+  year: "numeric",
+});
+
+const hourFmt = new Intl.DateTimeFormat("en-GB", {
+  timeZone: "Asia/Jakarta",
+  hour: "numeric",
+  hourCycle: "h23",
+});
+
+function greetingFor(date: Date) {
+  const h = Number(hourFmt.format(date));
+  if (h < 11) return "Selamat pagi";
+  if (h < 15) return "Selamat siang";
+  if (h < 18) return "Selamat sore";
+  return "Selamat malam";
+}
+
 const attendanceStyle = {
   ON_TIME: { label: "Tepat waktu", cls: "bg-green-100 text-green-800" },
   LATE: { label: "Terlambat", cls: "bg-amber-100 text-amber-900" },
@@ -36,14 +58,14 @@ const leaveStyle = {
 
 async function Greeting() {
   const session = await getSession();
+  const now = new Date();
+  const firstName = session?.name.split(" ")[0] ?? "";
   return (
     <div>
-      <h1 className="text-2xl font-semibold text-slate-900">
-        Halo, {session?.name}
+      <h1 className="text-3xl font-bold tracking-tight text-slate-900">
+        {greetingFor(now)}, {firstName}
       </h1>
-      <p className="mt-1 text-sm text-slate-600">
-        Absen dulu sebelum mulai kerja.
-      </p>
+      <p className="mt-1.5 text-sm text-slate-600">{dateLongFmt.format(now)}</p>
     </div>
   );
 }

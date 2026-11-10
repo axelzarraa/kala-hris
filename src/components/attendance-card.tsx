@@ -131,30 +131,40 @@ export default function AttendanceCard() {
 
       <div className="mt-4 flex flex-col gap-6 md:flex-row">
         <div className="flex flex-1 flex-col gap-3">
-          <p className="text-5xl font-semibold tracking-wide text-slate-900">
+                    <p className="text-6xl font-bold tabular-nums tracking-tight text-slate-900">
             {now ? clockFmt.format(new Date(now)) : "--:--:--"}
           </p>
-          <p className="text-sm text-slate-600">
+          <p className="flex items-center gap-2 text-sm text-slate-600">
+            <span className="relative flex h-2 w-2" aria-hidden="true">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-sun-400 opacity-60 motion-reduce:animate-none" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-sun-400" />
+            </span>
             Waktu server, tidak bisa diubah
           </p>
 
-          <div className="flex flex-wrap gap-2">
-            <span className="rounded-full bg-slate-100 px-3 py-1 text-xs text-slate-800">
-              Masuk {formatTime(attendance?.clockIn ?? null)}
-            </span>
-            <span className="rounded-full bg-slate-100 px-3 py-1 text-xs text-slate-800">
-              Pulang {formatTime(attendance?.clockOut ?? null)}
-            </span>
-            {attendance?.status === "ON_TIME" && (
-              <span className="rounded-full bg-green-100 px-3 py-1 text-xs text-green-800">
-                Tepat waktu
-              </span>
-            )}
-            {attendance?.status === "LATE" && (
-              <span className="rounded-full bg-amber-100 px-3 py-1 text-xs text-amber-900">
-                Terlambat
-              </span>
-            )}
+          <div className="mt-2 grid max-w-sm grid-cols-2 gap-3">
+            <div className="rounded-lg bg-slate-50 px-4 py-3">
+              <p className="text-xs text-slate-600">Masuk</p>
+              <p className="text-2xl font-semibold tabular-nums text-slate-900">
+                {formatTime(attendance?.clockIn ?? null)}
+              </p>
+              {attendance?.status === "ON_TIME" && (
+                <span className="mt-1 inline-block rounded-full bg-green-100 px-2.5 py-0.5 text-xs text-green-800">
+                  Tepat waktu
+                </span>
+              )}
+              {attendance?.status === "LATE" && (
+                <span className="mt-1 inline-block rounded-full bg-amber-100 px-2.5 py-0.5 text-xs text-amber-900">
+                  Terlambat
+                </span>
+              )}
+            </div>
+            <div className="rounded-lg bg-slate-50 px-4 py-3">
+              <p className="text-xs text-slate-600">Pulang</p>
+              <p className="text-2xl font-semibold tabular-nums text-slate-900">
+                {formatTime(attendance?.clockOut ?? null)}
+              </p>
+            </div>
           </div>
 
           {error && (
@@ -201,7 +211,7 @@ export default function AttendanceCard() {
           )}
         </div>
 
-        <div className="flex h-52 w-full items-center justify-center overflow-hidden rounded-xl border border-dashed border-slate-300 bg-slate-100 md:w-64">
+                <div className="flex h-52 w-full items-center justify-center overflow-hidden rounded-2xl bg-indigo-50 md:w-64">
           {cameraOpen ? (
             <video
               ref={videoRef}
@@ -211,9 +221,27 @@ export default function AttendanceCard() {
               className="h-full w-full -scale-x-100 object-cover"
             />
           ) : (
-            <p className="px-4 text-center text-sm text-slate-600">
-              Kamera terbuka saat kamu menekan tombol absen
-            </p>
+            <div className="flex flex-col items-center gap-3 px-6 text-center">
+              <span className="flex h-12 w-12 items-center justify-center rounded-full bg-white text-indigo-600 shadow-sm">
+                <svg
+                  width="22"
+                  height="22"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M4 8h3l1.5-2h7L17 8h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z" />
+                  <circle cx="12" cy="13" r="3.5" />
+                </svg>
+              </span>
+              <p className="text-sm text-slate-700">
+                Kamera menyala saat kamu menekan tombol absen
+              </p>
+            </div>
           )}
         </div>
       </div>
