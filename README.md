@@ -37,7 +37,7 @@ Next.js 16, TypeScript, Tailwind CSS, Prisma 7 with MySQL (Aiven), Cloudinary fo
 - Leave balance is deducted only when a request is approved. Pending requests still count when checking available days, so balance cannot be overbooked.
 - Approval is done inside a transaction that checks the current status, so a request can only be processed once.
 - Passwords are hashed with bcrypt, and the API never returns password hashes.
-- National holidays do not use up leave balance. Collective leave days are optional per the government, so they are counted as normal leave. Holiday data covers December 2026 and all of 2027, based on the government's joint decree (SKB 3 Menteri).
+- National holidays do not use up leave balance. Collective leave days are optional per the government, so they are counted as normal leave. Holiday data for December 2026 and all of 2027 was checked against the official joint decrees (SKB 3 Menteri) published by the State Secretariat.
 
 ## Run locally
 
