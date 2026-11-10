@@ -5,6 +5,7 @@ import { getWibDate } from "@/lib/attendance";
 import LeaveForm from "@/components/leave-form";
 import { toDateKey } from "@/lib/leave";
 import { findBridgeSuggestions } from "@/lib/bridges";
+import CancelLeaveButton from "@/components/cancel-leave-button";
 
 const dateFmt = new Intl.DateTimeFormat("id-ID", {
   timeZone: "UTC",
@@ -128,6 +129,10 @@ async function LeaveContent() {
                     <span className="text-slate-600">
                       {formatRange(r.startDate, r.endDate)}
                     </span>
+                      {(r.status === "PENDING_MANAGER" ||
+                      r.status === "PENDING_HR") && (
+                      <CancelLeaveButton id={r.id} />
+                    )}
                   </li>
                 );
               })}
