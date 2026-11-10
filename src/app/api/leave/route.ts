@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/session";
 import { getWibDate } from "@/lib/attendance";
 import { countWorkdays, parseDateOnly, toDateKey } from "@/lib/leave";
+import { ensureLeaveBalances } from "@/lib/balances";
 
 function fail(message: string, status: number) {
   return NextResponse.json({ error: message }, { status });
@@ -73,6 +74,12 @@ export async function POST(req: Request) {
 
   const employeeId = Number(session.sub);
   const year = start.getUTCFullYear();
+
+  const currentYear = getWibDate(new Date()).getUTCFullYear();
+  if (year > currentYear + 1) {
+    return fail("Pengajuan hanya bisa untuk tahun ini atau tahun depan", 400);
+  }
+  await ensureLeaveBalances(employeeId, year);
 
   const [balance, pending, overlap, employee] = await Promise.all([
     prisma.leaveBalance.findUnique({

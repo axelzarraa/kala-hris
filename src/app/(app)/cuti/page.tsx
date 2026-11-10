@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/session";
 import { getWibDate } from "@/lib/attendance";
 import LeaveForm from "@/components/leave-form";
+import { toDateKey } from "@/lib/leave";
 
 const dateFmt = new Intl.DateTimeFormat("id-ID", {
   timeZone: "UTC",
@@ -32,18 +33,22 @@ async function LeaveContent() {
   const employeeId = Number(session.sub);
   const year = getWibDate(new Date()).getUTCFullYear();
 
-  const [leaveTypes, balances, requests] = await Promise.all([
+    const [leaveTypes, balances, requests, holidays] = await Promise.all([
     prisma.leaveType.findMany({ orderBy: { id: "asc" } }),
     prisma.leaveBalance.findMany({
       where: { employeeId, year },
       include: { leaveType: true },
       orderBy: { leaveTypeId: "asc" },
     }),
-    prisma.leaveRequest.findMany({
+        prisma.leaveRequest.findMany({
       where: { employeeId },
       include: { leaveType: true },
       orderBy: { createdAt: "desc" },
       take: 20,
+    }),
+    prisma.holiday.findMany({
+      where: { date: { gte: getWibDate(new Date()) } },
+      orderBy: { date: "asc" },
     }),
   ]);
 
@@ -53,8 +58,13 @@ async function LeaveContent() {
         <h2 className="mb-4 text-base font-semibold text-slate-900">
           Ajukan cuti
         </h2>
-        <LeaveForm
+                <LeaveForm
           leaveTypes={leaveTypes.map((t) => ({ id: t.id, name: t.name }))}
+          holidays={holidays.map((h) => ({
+            date: toDateKey(h.date),
+            name: h.name,
+            isCollectiveLeave: h.isCollectiveLeave,
+          }))}
         />
       </section>
 

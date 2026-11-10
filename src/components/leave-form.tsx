@@ -5,11 +5,24 @@ import { useRouter } from "next/navigation";
 import { countWorkdays, parseDateOnly } from "@/lib/leave";
 
 type LeaveType = { id: number; name: string };
+type HolidayItem = { date: string; name: string; isCollectiveLeave: boolean };
+
+const shortDate = new Intl.DateTimeFormat("id-ID", {
+  timeZone: "UTC",
+  day: "numeric",
+  month: "short",
+});
 
 const inputCls =
   "min-h-11 w-full rounded-lg border border-slate-300 px-3 text-sm font-normal outline-none focus:border-indigo-600";
 
-export default function LeaveForm({ leaveTypes }: { leaveTypes: LeaveType[] }) {
+export default function LeaveForm({
+  leaveTypes,
+  holidays = [],
+}: {
+  leaveTypes: LeaveType[];
+  holidays?: HolidayItem[];
+}) {
   const router = useRouter();
   const today = new Date().toLocaleDateString("sv-SE", {
     timeZone: "Asia/Jakarta",
@@ -25,11 +38,27 @@ export default function LeaveForm({ leaveTypes }: { leaveTypes: LeaveType[] }) {
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
 
+    // Hanya libur nasional yang dilewatkan, cuti bersama tetap dihitung
+  const skipDates = useMemo(
+    () => new Set(holidays.filter((h) => !h.isCollectiveLeave).map((h) => h.date)),
+    [holidays]
+  );
+
   const days = useMemo(() => {
     const s = parseDateOnly(startDate);
     const e = parseDateOnly(endDate);
-    return s && e && e >= s ? countWorkdays(s, e) : 0;
-  }, [startDate, endDate]);
+    return s && e && e >= s ? countWorkdays(s, e, skipDates) : 0;
+  }, [startDate, endDate, skipDates]);
+
+  // Libur di hari kerja yang jatuh dalam rentang tanggal terpilih
+  const holidayNotes = useMemo(() => {
+    if (!startDate || !endDate) return [];
+    return holidays.filter((h) => {
+      if (h.date < startDate || h.date > endDate) return false;
+      const d = parseDateOnly(h.date);
+      return d !== null && d.getUTCDay() !== 0 && d.getUTCDay() !== 6;
+    });
+  }, [holidays, startDate, endDate]);
 
   async function submit(ev: React.FormEvent) {
     ev.preventDefault();
@@ -124,11 +153,25 @@ export default function LeaveForm({ leaveTypes }: { leaveTypes: LeaveType[] }) {
         />
       </label>
 
-      <p className="text-sm text-slate-600">
-        {days > 0
-          ? `Durasi: ${days} hari kerja (Sabtu dan Minggu tidak dihitung)`
-          : "Pilih tanggal untuk melihat durasi"}
-      </p>
+            <div className="flex flex-col gap-1 text-sm text-slate-600">
+        <p>
+          {days > 0
+            ? `Durasi: ${days} hari kerja (akhir pekan dan libur nasional tidak dihitung)`
+            : startDate && endDate
+              ? "Rentang ini hanya berisi akhir pekan atau libur nasional"
+              : "Pilih tanggal untuk melihat durasi"}
+        </p>
+        {holidayNotes.map((h) => {
+          const label = shortDate.format(parseDateOnly(h.date)!);
+          return (
+            <p key={h.date}>
+              {h.isCollectiveLeave
+                ? `${label}: ${h.name}, cuti bersama tetap dihitung sebagai cuti`
+                : `${label}: ${h.name}, libur nasional tidak mengurangi jatah`}
+            </p>
+          );
+        })}
+      </div>
 
       {error && (
         <p role="alert" className="text-sm text-red-700">
