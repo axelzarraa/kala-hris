@@ -18,6 +18,17 @@ function formatRange(start: Date, end: Date) {
     : `${dateFmt.format(start)} - ${dateFmt.format(end)}`;
 }
 
+
+function initials(name: string) {
+  return name
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((s) => s[0])
+    .join("")
+    .toUpperCase();
+}
+
 async function Approvals() {
   const session = await getSession();
   if (!session) redirect("/");
@@ -52,40 +63,40 @@ async function Approvals() {
     );
   }
 
-  return (
-    <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white">
-      <table className="w-full min-w-[720px] border-collapse text-sm">
-        <thead>
-          <tr className="text-left text-slate-600">
-            <th className="p-4 font-medium">Karyawan</th>
-            <th className="p-4 font-medium">Jenis</th>
-            <th className="p-4 font-medium">Tanggal</th>
-            <th className="p-4 font-medium">Hari</th>
-            <th className="p-4 font-medium">Alasan</th>
-            <th className="p-4 font-medium">Aksi</th>
-          </tr>
-        </thead>
-        <tbody>
-          {requests.map((r) => (
-            <tr key={r.id} className="border-t border-slate-200 align-top">
-              <td className="p-4">
-                <p className="font-medium text-slate-900">{r.employee.name}</p>
-                <p className="text-xs text-slate-600">{r.employee.position}</p>
-              </td>
-              <td className="p-4 text-slate-900">{r.leaveType.name}</td>
-              <td className="p-4 text-slate-900">
+    return (
+    <ul className="flex flex-col gap-4">
+      {requests.map((r) => (
+        <li
+          key={r.id}
+          className="flex flex-col gap-4 rounded-xl border border-slate-200 bg-white p-5 md:flex-row md:items-start md:justify-between"
+        >
+          <div className="flex gap-4">
+            <span
+              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-indigo-100 text-sm font-semibold text-indigo-800"
+              aria-hidden="true"
+            >
+              {initials(r.employee.name)}
+            </span>
+            <div className="min-w-0">
+              <p className="font-semibold text-slate-900">{r.employee.name}</p>
+              <p className="text-xs text-slate-600">{r.employee.position}</p>
+              <p className="mt-3 text-sm text-slate-900">
+                {r.leaveType.name}, {r.totalDays} hari kerja
+              </p>
+              <p className="text-sm text-slate-600">
                 {formatRange(r.startDate, r.endDate)}
-              </td>
-              <td className="p-4 text-slate-900">{r.totalDays}</td>
-              <td className="max-w-56 p-4 text-slate-600">{r.reason}</td>
-              <td className="p-4">
-                <ApprovalActions id={r.id} />
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+              </p>
+              <p className="mt-2 max-w-md rounded-lg bg-slate-50 px-3 py-2 text-sm text-slate-700">
+                {r.reason}
+              </p>
+            </div>
+          </div>
+          <div className="md:shrink-0">
+            <ApprovalActions id={r.id} />
+          </div>
+        </li>
+      ))}
+    </ul>
   );
 }
 
@@ -93,10 +104,10 @@ export default function PersetujuanPage() {
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h1 className="text-2xl font-semibold text-slate-900">
-          Persetujuan cuti
-        </h1>
-        <p className="mt-1 text-sm text-slate-600">
+          <h1 className="text-3xl font-bold tracking-tight text-slate-900">
+            Persetujuan cuti
+          </h1>
+          <p className="mt-1.5 text-sm text-slate-600">
           Pengajuan yang menunggu keputusanmu.
         </p>
       </div>
