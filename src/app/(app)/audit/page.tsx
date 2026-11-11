@@ -28,6 +28,25 @@ const entityLabel: Record<string, string> = {
   Employee: "Karyawan",
 };
 
+
+const actionStyle: Record<string, string> = {
+  "leave.create": "bg-indigo-100 text-indigo-800",
+  "leave.approve": "bg-green-100 text-green-800",
+  "leave.reject": "bg-red-100 text-red-800",
+  "employee.create": "bg-indigo-100 text-indigo-800",
+  "employee.activate": "bg-green-100 text-green-800",
+  "employee.deactivate": "bg-slate-100 text-slate-800",
+};
+
+function initials(name: string) {
+  return name
+    .split(" ")
+    .slice(0, 2)
+    .map((w) => w[0])
+    .join("")
+    .toUpperCase();
+}
+
 function formatDetail(detail: unknown) {
   if (
     detail &&
@@ -65,7 +84,7 @@ async function AuditList() {
     <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white">
       <table className="w-full min-w-[720px] border-collapse text-sm">
         <thead>
-          <tr className="text-left text-slate-600">
+            <tr className="bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-600">
             <th className="p-4 font-medium">Waktu</th>
             <th className="p-4 font-medium">Pelaku</th>
             <th className="p-4 font-medium">Aksi</th>
@@ -75,15 +94,28 @@ async function AuditList() {
         </thead>
         <tbody>
           {logs.map((l) => (
-            <tr key={l.id} className="border-t border-slate-200">
+            <tr key={l.id} className="border-t border-slate-200 hover:bg-slate-50">
               <td className="p-4 text-slate-600">
                 {timeFmt.format(l.createdAt)}
               </td>
-              <td className="p-4 font-medium text-slate-900">
-                {l.actor.name}
+                <td className="p-4">
+                <div className="flex items-center gap-3">
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-indigo-100 text-xs font-semibold text-indigo-800">
+                    {initials(l.actor.name)}
+                  </span>
+                  <span className="font-medium text-slate-900">
+                    {l.actor.name}
+                  </span>
+                </div>
               </td>
-              <td className="p-4 text-slate-900">
-                {actionLabel[l.action] ?? l.action}
+              <td className="p-4">
+                <span
+                  className={`rounded-full px-3 py-1 text-xs font-medium ${
+                    actionStyle[l.action] ?? "bg-slate-100 text-slate-800"
+                  }`}
+                >
+                  {actionLabel[l.action] ?? l.action}
+                </span>
               </td>
               <td className="p-4 text-slate-900">
                 {entityLabel[l.entity] ?? l.entity} #{l.entityId}

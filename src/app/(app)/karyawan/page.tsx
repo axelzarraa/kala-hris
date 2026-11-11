@@ -11,6 +11,22 @@ const roleLabel = {
   HR: "HR",
 } as const;
 
+
+const roleStyle = {
+  EMPLOYEE: "bg-slate-100 text-slate-800",
+  MANAGER: "bg-amber-100 text-amber-800",
+  HR: "bg-indigo-100 text-indigo-800",
+} as const;
+
+function initials(name: string) {
+  return name
+    .split(" ")
+    .slice(0, 2)
+    .map((w) => w[0])
+    .join("")
+    .toUpperCase();
+}
+
 async function EmployeeList() {
   const session = await getSession();
   if (!session) redirect("/");
@@ -51,7 +67,7 @@ async function EmployeeList() {
       <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white">
         <table className="w-full min-w-[860px] border-collapse text-sm">
           <thead>
-            <tr className="text-left text-slate-600">
+              <tr className="bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-600">
               <th className="p-4 font-medium">Kode</th>
               <th className="p-4 font-medium">Nama</th>
               <th className="p-4 font-medium">Jabatan</th>
@@ -64,26 +80,44 @@ async function EmployeeList() {
           </thead>
           <tbody>
             {employees.map((e) => (
-              <tr key={e.id} className="border-t border-slate-200 align-top">
+                <tr key={e.id} className="border-t border-slate-200 align-middle hover:bg-slate-50">
                 <td className="p-4 text-slate-600">{e.employeeCode}</td>
-                <td className="p-4">
-                  <p className="font-medium text-slate-900">{e.name}</p>
-                  <p className="text-xs text-slate-600">{e.email}</p>
+                                <td className="p-4">
+                  <div className="flex items-center gap-3">
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-indigo-100 text-xs font-semibold text-indigo-800">
+                      {initials(e.name)}
+                    </span>
+                    <div>
+                      <p className="font-medium text-slate-900">{e.name}</p>
+                      <p className="text-xs text-slate-600">{e.email}</p>
+                    </div>
+                  </div>
                 </td>
                 <td className="p-4 text-slate-900">{e.position}</td>
                 <td className="p-4 text-slate-900">{e.department.name}</td>
                 <td className="p-4 text-slate-900">
                   {e.manager?.name ?? "-"}
                 </td>
-                <td className="p-4 text-slate-900">{roleLabel[e.role]}</td>
+                                <td className="p-4">
+                  <span
+                    className={`rounded-full px-3 py-1 text-xs font-medium ${roleStyle[e.role]}`}
+                  >
+                    {roleLabel[e.role]}
+                  </span>
+                </td>
                 <td className="p-4">
                   <span
-                    className={`rounded-full px-3 py-1 text-xs ${
+                    className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium ${
                       e.isActive
                         ? "bg-green-100 text-green-800"
                         : "bg-slate-100 text-slate-800"
                     }`}
                   >
+                    <span
+                      className={`h-1.5 w-1.5 rounded-full ${
+                        e.isActive ? "bg-green-600" : "bg-slate-500"
+                      }`}
+                    />
                     {e.isActive ? "Aktif" : "Nonaktif"}
                   </span>
                 </td>

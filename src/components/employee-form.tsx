@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 type Option = { id: number; name: string };
 
 const inputCls =
-  "min-h-11 w-full rounded-lg border border-slate-300 px-3 text-sm font-normal outline-none focus:border-indigo-600";
+"min-h-11 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm font-normal outline-none focus:border-indigo-600 focus:ring-2 focus:ring-indigo-600/20";
 const labelCls = "flex flex-col gap-1.5 text-sm font-medium text-slate-800";
 
 export default function EmployeeForm({
@@ -65,8 +65,11 @@ export default function EmployeeForm({
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="min-h-11 self-start rounded-lg bg-indigo-600 px-5 text-sm font-medium text-white hover:bg-indigo-700"
+        className="inline-flex min-h-11 items-center gap-2 self-start rounded-lg bg-indigo-600 px-5 text-sm font-medium text-white hover:bg-indigo-700"
       >
+        <span aria-hidden className="text-lg leading-none">
+          +
+        </span>
         Tambah karyawan
       </button>
     );
@@ -75,11 +78,16 @@ export default function EmployeeForm({
   return (
     <form
       onSubmit={submit}
-      className="flex flex-col gap-4 rounded-xl border border-slate-200 bg-white p-6"
+      className="flex flex-col gap-5 rounded-xl border border-slate-200 bg-white p-6 shadow-sm"
     >
-      <h2 className="text-base font-semibold text-slate-900">
-        Karyawan baru
-      </h2>
+      <div>
+        <h2 className="text-base font-semibold text-slate-900">
+          Karyawan baru
+        </h2>
+        <p className="mt-1 text-sm text-slate-600">
+          Isi data karyawan lalu simpan.
+        </p>
+      </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
         <label className={labelCls}>
@@ -132,6 +140,7 @@ export default function EmployeeForm({
           <input
             name="password"
             type="password"
+            autoComplete="new-password"
             minLength={8}
             placeholder="Minimal 8 karakter"
             className={inputCls}
@@ -140,12 +149,19 @@ export default function EmployeeForm({
         </label>
       </div>
 
-      {error && (
-        <p role="alert" className="text-sm text-red-700">
+            {error && (
+        <p
+          role="alert"
+          className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-800"
+        >
           {error}
         </p>
       )}
-      {success && <p className="text-sm text-green-800">{success}</p>}
+      {success && (
+        <p className="rounded-lg bg-green-50 px-3 py-2 text-sm text-green-800">
+          {success}
+        </p>
+      )}
 
       <div className="flex gap-2">
         <button
