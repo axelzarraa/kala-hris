@@ -45,3 +45,4 @@ next-env.d.ts
 
 # foto absensi
 /public/uploads
+scripts/backup/
