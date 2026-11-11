@@ -150,6 +150,14 @@ async function LeaveContent() {
                     <span className="text-slate-600">
                       {formatRange(r.startDate, r.endDate)}
                     </span>
+                    {r.status === "REJECTED" && r.reviewNote && (
+                      <p className="text-slate-600">
+                        <span className="font-medium text-slate-900">
+                          Alasan penolakan:
+                        </span>{" "}
+                        {r.reviewNote}
+                      </p>
+                    )}
                     {(r.status === "PENDING_MANAGER" ||
                       r.status === "PENDING_HR") && (
                       <CancelLeaveButton id={r.id} />
