@@ -11,6 +11,31 @@ const suggestions = [
   "Status pengajuan cuti terakhirku apa?",
 ];
 
+function DinaAvatar({ size = "md" }: { size?: "sm" | "md" }) {
+  const box = size === "md" ? "h-14 w-14" : "h-8 w-8";
+  const icon = size === "md" ? 26 : 16;
+  return (
+    <span
+      className={`flex ${box} shrink-0 items-center justify-center rounded-full bg-indigo-600 text-white`}
+      aria-hidden="true"
+    >
+      <svg
+        width={icon}
+        height={icon}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <path d="M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8z" />
+        <path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z" />
+      </svg>
+    </span>
+  );
+}
+
 export default function DinaChat() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
@@ -53,23 +78,29 @@ export default function DinaChat() {
 
   return (
     <div className="flex flex-col gap-4 rounded-xl border border-slate-200 bg-white p-4 sm:p-6">
-      <div
-        className="flex h-[55vh] flex-col gap-3 overflow-y-auto"
+           <div
+        className="flex h-[60vh] min-h-80 flex-col gap-4 overflow-y-auto"
         aria-live="polite"
       >
         {messages.length === 0 ? (
-          <div className="m-auto flex max-w-md flex-col items-center gap-4 text-center">
-            <p className="text-sm text-slate-600">
-              Halo, aku Dina. Tanya soal absensi, sisa cuti, atau libur. Aku
-              cuma bisa membaca datamu sendiri.
-            </p>
-            <div className="flex flex-wrap justify-center gap-2">
+          <div className="m-auto flex w-full max-w-lg flex-col items-center gap-6 text-center">
+            <DinaAvatar />
+            <div>
+              <h2 className="text-xl font-bold tracking-tight text-slate-900">
+                Tanya Dina
+              </h2>
+              <p className="mt-1.5 text-sm text-slate-600">
+                Aku bisa bantu cek absensi, sisa cuti, pengajuan, dan hari
+                libur. Aku hanya membaca datamu sendiri.
+              </p>
+            </div>
+            <div className="grid w-full gap-2 sm:grid-cols-2">
               {suggestions.map((s) => (
                 <button
                   key={s}
                   type="button"
                   onClick={() => send(s)}
-                  className="min-h-11 rounded-lg border border-slate-300 px-3 text-sm text-slate-800 hover:bg-slate-50"
+                  className="min-h-11 rounded-xl border border-slate-300 bg-white px-4 py-3 text-left text-sm text-slate-800 transition-colors hover:border-indigo-600 hover:bg-indigo-50"
                 >
                   {s}
                 </button>
@@ -77,27 +108,44 @@ export default function DinaChat() {
             </div>
           </div>
         ) : (
-          messages.map((m, i) => (
-            <div
-              key={i}
-              className={`max-w-[85%] whitespace-pre-wrap rounded-2xl px-4 py-2.5 text-sm ${
-                m.role === "user"
-                  ? "self-end bg-indigo-600 text-white"
-                  : "self-start bg-slate-100 text-slate-900"
-              }`}
-            >
-              {m.text}
-            </div>
-          ))
+          messages.map((m, i) =>
+            m.role === "user" ? (
+              <div
+                key={i}
+                className="max-w-[85%] self-end whitespace-pre-wrap rounded-2xl rounded-br-md bg-indigo-600 px-4 py-2.5 text-sm text-white"
+              >
+                {m.text}
+              </div>
+            ) : (
+              <div key={i} className="flex max-w-[85%] items-end gap-2 self-start">
+                <DinaAvatar size="sm" />
+                <div className="whitespace-pre-wrap rounded-2xl rounded-bl-md bg-indigo-50 px-4 py-2.5 text-sm text-slate-900">
+                  {m.text}
+                </div>
+              </div>
+            )
+          )
         )}
         {loading && (
-          <div className="self-start rounded-2xl bg-slate-100 px-4 py-2.5 text-sm text-slate-600">
-            Dina sedang mengetik...
+          <div className="flex items-end gap-2 self-start">
+            <DinaAvatar size="sm" />
+            <div
+              role="status"
+              aria-label="Dina sedang mengetik"
+              className="flex gap-1 rounded-2xl rounded-bl-md bg-indigo-50 px-4 py-3.5"
+            >
+              {[0, 150, 300].map((d) => (
+                <span
+                  key={d}
+                  className="h-1.5 w-1.5 animate-bounce rounded-full bg-indigo-600/60 motion-reduce:animate-none"
+                  style={{ animationDelay: `${d}ms` }}
+                />
+              ))}
+            </div>
           </div>
         )}
         <div ref={endRef} />
       </div>
-
       {error && (
         <p role="alert" className="text-sm text-red-700">
           {error}
