@@ -26,9 +26,43 @@ Internal HR web app for attendance and leave management. Employees clock in with
 - Notification bell, refreshed every 15 seconds.
 - HR tools: employee management, monthly attendance report with CSV export, and an audit log.
 
-## Tech stack
+## Screenshots
 
-Next.js 16, TypeScript, Tailwind CSS, Prisma 7 with MySQL (Aiven), Cloudinary for photos, Vitest, GitHub Actions for CI, deployed on Vercel.
+### Sign in
+One-click demo buttons for the three roles.
+
+![Login](docs/screenshots/login.jpeg)
+
+### Employee
+Home with live server clock and leave balance, then the leave page with request history across statuses.
+
+![Home](docs/screenshots/beranda.jpeg)
+![Leave](docs/screenshots/cuti.jpeg)
+
+### Smart leave
+Team conflict warning in the leave form, and the team calendar for managers and HR.
+
+![Conflict warning](docs/screenshots/bentrok.jpeg)
+![Team calendar](docs/screenshots/kalender.jpeg)
+
+### Approval flow
+Managers review pending requests and approve or reject with a note.
+
+![Approvals](docs/screenshots/persetujuan.jpeg)
+
+### Dina, the AI assistant
+Read-only assistant that only sees the logged-in employee's own data.
+
+![Dina](docs/screenshots/dina.jpeg)
+
+### HR tools
+Monthly attendance report and the audit log.
+
+![Report](docs/screenshots/laporan.jpeg)
+![Audit log](docs/screenshots/audit.jpeg)
+
+## Tech stack
+Next.js 16, TypeScript, Tailwind CSS, Prisma 7 with MySQL (Aiven), Cloudinary for photos, Gemini API for Dina, Vitest, GitHub Actions for CI, deployed on Vercel.
 
 ## Design decisions
 
