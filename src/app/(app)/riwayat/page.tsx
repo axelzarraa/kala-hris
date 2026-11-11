@@ -58,47 +58,83 @@ async function History() {
     );
   }
 
+    const count = (status: keyof typeof statusStyle) =>
+    rows.filter((r) => r.status === status).length;
+
+  const stats = [
+    { label: "Tepat waktu", value: count("ON_TIME") },
+    { label: "Terlambat", value: count("LATE") },
+    { label: "Tidak hadir", value: count("ABSENT") },
+  ];
+
   return (
-    <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white">
-      <table className="w-full min-w-[640px] border-collapse text-sm">
-        <thead>
-          <tr className="text-left text-slate-600">
-            <th className="p-4 font-medium">Tanggal</th>
-            <th className="p-4 font-medium">Masuk</th>
-            <th className="p-4 font-medium">Pulang</th>
-            <th className="p-4 font-medium">Status</th>
-            <th className="p-4 font-medium">Foto masuk</th>
-            <th className="p-4 font-medium">Foto pulang</th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((r) => {
-            const s = statusStyle[r.status];
-            return (
-              <tr key={r.id} className="border-t border-slate-200">
-                <td className="p-4 text-slate-900">{dateFmt.format(r.date)}</td>
-                <td className="p-4 text-slate-900">
-                  {r.clockIn ? timeFmt.format(r.clockIn) : "--:--"}
-                </td>
-                <td className="p-4 text-slate-900">
-                  {r.clockOut ? timeFmt.format(r.clockOut) : "--:--"}
-                </td>
-                <td className="p-4">
-                  <span className={`rounded-full px-3 py-1 text-xs ${s.cls}`}>
-                    {s.label}
-                  </span>
-                </td>
-                <td className="p-4">
-                  <Photo src={r.clockInPhoto} alt="Foto absen masuk" />
-                </td>
-                <td className="p-4">
-                  <Photo src={r.clockOutPhoto} alt="Foto absen pulang" />
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+    <div className="flex flex-col gap-6">
+      <div className="grid grid-cols-3 gap-3 sm:gap-4">
+        {stats.map((st) => (
+          <div
+            key={st.label}
+            className="rounded-xl border border-slate-200 bg-white p-4"
+          >
+            <p className="text-xs text-slate-600">{st.label}</p>
+            <p className="mt-1 text-3xl font-bold tabular-nums text-slate-900">
+              {st.value}
+            </p>
+          </div>
+        ))}
+      </div>
+
+      <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white px-2">
+        <table className="w-full min-w-[640px] border-collapse text-sm">
+          <thead>
+            <tr className="text-left text-xs text-slate-600">
+              <th className="p-4 font-medium">Tanggal</th>
+              <th className="p-4 font-medium">Masuk</th>
+              <th className="p-4 font-medium">Pulang</th>
+              <th className="p-4 font-medium">Status</th>
+              <th className="p-4 font-medium">Foto masuk</th>
+              <th className="p-4 font-medium">Foto pulang</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((r) => {
+              const s = statusStyle[r.status];
+              return (
+                <tr
+                  key={r.id}
+                  className="border-t border-slate-200 transition-colors hover:bg-slate-50"
+                >
+                  <td className="p-4 font-medium text-slate-900">
+                    {dateFmt.format(r.date)}
+                  </td>
+                  <td className="p-4 tabular-nums text-slate-900">
+                    {r.clockIn ? timeFmt.format(r.clockIn) : "--:--"}
+                  </td>
+                  <td className="p-4 tabular-nums text-slate-900">
+                    {r.clockOut ? timeFmt.format(r.clockOut) : "--:--"}
+                  </td>
+                  <td className="p-4">
+                    <span
+                      className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium ${s.cls}`}
+                    >
+                      <span
+                        className="h-1.5 w-1.5 rounded-full bg-current"
+                        aria-hidden="true"
+                      />
+                      {s.label}
+                    </span>
+                  </td>
+                  <td className="p-4">
+                    <Photo src={r.clockInPhoto} alt="Foto absen masuk" />
+                  </td>
+                  <td className="p-4">
+                    <Photo src={r.clockOutPhoto} alt="Foto absen pulang" />
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
@@ -107,10 +143,10 @@ export default function RiwayatPage() {
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h1 className="text-2xl font-semibold text-slate-900">
+        <h1 className="text-3xl font-bold tracking-tight text-slate-900">
           Riwayat absensi
         </h1>
-        <p className="mt-1 text-sm text-slate-600">
+        <p className="mt-1.5 text-sm text-slate-600">
           30 absensi terakhir kamu.
         </p>
       </div>
